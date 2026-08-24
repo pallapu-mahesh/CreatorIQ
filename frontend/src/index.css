@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design Tokens ─────────────────────────────── */
+:root {
+  --sidebar-width: 256px;
+  --navbar-height: 64px;
+}
+
+/* ── Base resets ───────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100;
+    margin: 0;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight text-slate-900 dark:text-slate-100;
+  }
+}
+
+/* ── Component helpers ─────────────────────────── */
+@layer components {
+  /* Card */
+  .card {
+    @apply bg-white rounded-xl border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-slate-700;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2
+           bg-brand-600 hover:bg-brand-700 active:bg-brand-800
+           text-white text-sm font-medium rounded-lg
+           transition-colors duration-150 focus:outline-none
+           focus:ring-2 focus:ring-brand-500 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2
+           text-slate-600 hover:bg-slate-100 active:bg-slate-200
+           text-sm font-medium rounded-lg transition-colors duration-150
+           dark:text-slate-300 dark:hover:bg-slate-800 dark:active:bg-slate-700;
+  }
+
+  /* Form input */
+  .form-input {
+    @apply w-full px-3 py-2 text-sm bg-white border border-slate-300
+           rounded-lg placeholder-slate-400 text-slate-900
+           focus:outline-none focus:ring-2 focus:ring-brand-500
+           focus:border-transparent transition duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed
+           dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100
+           dark:placeholder-slate-500;
+  }
+
+  /* Form label */
+  .form-label {
+    @apply block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300;
+  }
+
+  /* KPI card */
+  .kpi-card {
+    @apply card p-5 flex flex-col gap-3 hover:shadow-md transition-shadow duration-200;
+  }
+
+  /* Sidebar nav link */
+  .nav-link {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+           text-slate-600 hover:bg-slate-100 hover:text-slate-900
+           transition-colors duration-150 cursor-pointer
+           dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100;
+  }
+
+  .nav-link.active {
+    @apply bg-brand-50 text-brand-700 hover:bg-brand-100 dark:bg-brand-900/40 dark:text-brand-300 dark:hover:bg-brand-900/40;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-green  { @apply bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300; }
+  .badge-red    { @apply bg-red-100 text-red-700 dark:bg-red-900/60 dark:text-red-300; }
+  .badge-blue   { @apply bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300; }
+  .badge-slate  { @apply bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300; }
+
+  /* Page header */
+  .page-header {
+    @apply mb-6;
+  }
+
+  .page-title {
+    @apply text-xl font-semibold text-slate-900 dark:text-slate-100;
+  }
+
+  .page-subtitle {
+    @apply text-sm text-slate-500 mt-0.5 dark:text-slate-400;
+  }
+
+  /* Alert */
+  .alert-error {
+    @apply bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm dark:bg-red-950 dark:border-red-800 dark:text-red-300;
+  }
+
+  .alert-success {
+    @apply bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg text-sm dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-300;
+  }
+}
+
+/* ── Dark mode chart overrides ─────────────────── */
+/* Recharts draws axis text/labels as SVG presentation attributes, so a CSS
+   class rule (higher precedence) can retint them for dark mode. */
+.dark .recharts-surface,
+.dark .recharts-wrapper {
+  color: #94a3b8;
+}
+.dark .recharts-text,
+.dark .recharts-cartesian-axis-tick text {
+  fill: #94a3b8;
+}
+.dark .recharts-legend-item-text,
+.dark .recharts-default-legend {
+  color: #94a3b8 !important;
+}
+.dark .recharts-cartesian-grid line,
+.dark .recharts-polar-grid line,
+.dark .recharts-radial-bar-background-sector {
+  stroke: #334155;
+}
+.dark .recharts-tooltip-cursor {
+  fill: rgba(148, 163, 184, 0.08);
+}
+.dark .recharts-pie-label-text,
+.dark .recharts-radial-bar-label text {
+  fill: #cbd5e1;
+}
