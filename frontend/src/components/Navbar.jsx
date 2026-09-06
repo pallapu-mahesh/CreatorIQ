@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Search, ChevronDown, LogOut, User, Settings } from 'lucide-react';
+import { Bell, Search, ChevronDown, LogOut, User, Settings, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
+import { useSidebar } from '../layouts/DashboardLayout';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
+  const { collapsed } = useSidebar();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = () => {
@@ -15,8 +17,23 @@ export default function Navbar() {
     navigate('/login');
   };
 
+  const navbarLeft = collapsed ? 'var(--sidebar-collapsed-width, 72px)' : 'var(--sidebar-width, 256px)';
+
   return (
-    <header className="fixed top-0 left-64 right-0 h-16 bg-white border-b border-slate-200 flex items-center px-6 gap-4 z-20 dark:bg-slate-900 dark:border-slate-700">
+    <header
+      className="fixed top-0 right-0 h-16 bg-white border-b border-slate-200 flex items-center px-6 gap-4 z-20 dark:bg-slate-900 dark:border-slate-700 transition-all duration-300 ease-in-out"
+      style={{ left: navbarLeft }}
+    >
+      {/* Hamburger menu button */}
+      <button
+        className="btn-ghost p-2 rounded-lg shrink-0"
+        onClick={() => {}}
+        aria-label="Toggle sidebar"
+        style={{ display: 'none' }}
+      >
+        <Menu size={18} />
+      </button>
+
       {/* Search */}
       <div className="flex-1 max-w-sm">
         <div className="relative">

@@ -7,6 +7,7 @@
 /* ── Design Tokens ─────────────────────────────── */
 :root {
   --sidebar-width: 256px;
+  --sidebar-collapsed-width: 72px;
   --navbar-height: 64px;
 }
 
