@@ -9,8 +9,12 @@ import { YouTubeIcon, InstagramIcon, FacebookIcon, LinkedInIcon, XIcon } from '.
 
 export default function SocialAccounts() {
   const navigate = useNavigate();
-  const { activePlatform, switchPlatform } = useActivePlatform();
-  const { guardedConnect } = useConnectionGuard();
+  const {
+    connectedPlatforms,
+    connectedAccounts,
+    selectPlatform,
+    disconnectPlatform,
+  } = useActivePlatform();
 
   const platformsRegistry = [
     {
@@ -76,8 +80,8 @@ export default function SocialAccounts() {
   ];
 
   const platforms = platformsRegistry.map((p) => {
-    const isConnected = activePlatform === p.id;
-    const details = isConnected ? demoData[p.id]?.account : null;
+    const isConnected = (connectedPlatforms || []).includes(p.id);
+    const details = isConnected ? (connectedAccounts?.[p.id] || demoData[p.id]?.account) : null;
     return {
       ...p,
       isConnected,
@@ -85,7 +89,7 @@ export default function SocialAccounts() {
       channelHandle: details?.handle || null,
       subscribers: details?.followersCount || 0,
       avatar: details?.avatarUrl || null,
-      connectedAt: 'Recently',
+      connectedAt: 'Active',
       badgeText: isConnected ? 'Connected' : 'Available',
       badgeClass: isConnected ? 'badge-green' : 'badge-slate',
     };
@@ -110,7 +114,7 @@ export default function SocialAccounts() {
             <h1 className="page-title text-2xl font-bold text-slate-900 dark:text-slate-100">Social Accounts Directory</h1>
           </div>
           <p className="page-subtitle text-sm text-slate-500 dark:text-slate-400">
-            Centralized hub for managing your social media platform integrations.
+            Centralized hub for managing your social media platform integrations. Connect multiple platforms simultaneously.
           </p>
         </div>
       </div>
@@ -161,30 +165,44 @@ export default function SocialAccounts() {
             </div>
 
             {/* Footer action button */}
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
               <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
                 {platform.isConnected ? 'Connected' : 'Not Connected'}
               </span>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  guardedConnect(platform.id, () => {
-                    if (!platform.isConnected) {
-                      switchPlatform(platform.id);
+              <div className="flex items-center gap-2">
+                {platform.isConnected && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      disconnectPlatform(platform.id);
+                    }}
+                    className="py-1.5 px-2.5 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-200 transition"
+                  >
+                    Disconnect
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (platform.isConnected) {
+                      selectPlatform(platform.id);
+                      navigate('/dashboard');
+                    } else {
+                      navigate(platform.route);
                     }
-                    navigate(platform.route);
-                  });
-                }}
-                className={`py-2 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                  platform.isConnected
-                    ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
-                    : 'bg-slate-900 dark:bg-slate-700 text-white hover:bg-slate-800 dark:hover:bg-slate-600 shadow-xs'
-                }`}
-              >
-                {platform.isConnected ? 'Manage' : 'Connect'}
-                <ArrowRight size={13} />
-              </button>
+                  }}
+                  className={`py-2 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                    platform.isConnected
+                      ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                      : 'bg-slate-900 dark:bg-slate-700 text-white hover:bg-slate-800 dark:hover:bg-slate-600 shadow-xs'
+                  }`}
+                >
+                  {platform.isConnected ? 'View Analytics' : 'Connect'}
+                  <ArrowRight size={13} />
+                </button>
+              </div>
             </div>
           </div>
         ))}

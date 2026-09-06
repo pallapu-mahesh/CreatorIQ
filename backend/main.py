@@ -7,11 +7,14 @@ from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.core.config import settings
 from app.db.database import Base, engine, ensure_db_schema
+from app.db.mongodb import ensure_mongo_indexes
 from app.routers import auth as auth_router
 from app.routers import content as content_router
 from app.routers import audience as audience_router
 from app.routers import trends as trends_router
 from app.routers import reports as reports_router
+from app.routers import platforms as platforms_router
+from app.routers import mongo_analytics as mongo_analytics_router
 
 logger = logging.getLogger("creatoriq")
 
@@ -20,6 +23,11 @@ logger = logging.getLogger("creatoriq")
 # --------------------------------------------------
 Base.metadata.create_all(bind=engine)
 ensure_db_schema()
+
+# --------------------------------------------------
+# Initialize MongoDB indexes on startup
+# --------------------------------------------------
+ensure_mongo_indexes()
 
 
 # --------------------------------------------------
@@ -83,6 +91,8 @@ app.include_router(content_router.router)
 app.include_router(audience_router.router)
 app.include_router(trends_router.router)
 app.include_router(reports_router.router)
+app.include_router(platforms_router.router)
+app.include_router(mongo_analytics_router.router)
 
 
 

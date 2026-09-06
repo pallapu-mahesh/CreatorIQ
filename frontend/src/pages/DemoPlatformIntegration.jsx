@@ -40,38 +40,44 @@ const formatDuration = (seconds) => {
 
 export default function DemoPlatformIntegration({ platformId }) {
   const {
-    activePlatform,
-    platformMeta,
-    activeAccount,
-    contentItems,
-    hasActivePlatform,
-    switchPlatform,
-    clearActivePlatform,
+    connectedPlatforms,
+    connectedAccounts,
+    connectedContent,
+    PLATFORM_REGISTRY,
+    connectPlatform,
+    disconnectPlatform,
+    selectPlatform,
   } = useActivePlatform();
   const { guardedConnect } = useConnectionGuard();
 
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
-  const isActive = hasActivePlatform && activePlatform === platformId;
-  const displayName = platformMeta?.displayName || PLATFORM_DISPLAY[platformId] || 'Account';
-  const meta = platformMeta || {};
-  const account = isActive ? activeAccount : null;
-  const content = isActive ? contentItems : [];
+  const isConnected = (connectedPlatforms || []).includes(platformId);
+  const meta = PLATFORM_REGISTRY?.[platformId] || {};
+  const displayName = meta.displayName || PLATFORM_DISPLAY[platformId] || 'Account';
+  const account = isConnected ? (connectedAccounts?.[platformId] || demoData[platformId]?.account) : null;
+  const content = isConnected ? (connectedContent?.[platformId] || demoData[platformId]?.content || []) : [];
 
-  const handleConnect = () => {
-    guardedConnect(platformId, () => {
-      switchPlatform(platformId);
+  const handleConnect = async () => {
+    try {
+      setSubmitting(true);
+      await connectPlatform(platformId);
+      selectPlatform(platformId);
       setSuccessMsg(`Successfully connected your ${displayName} account!`);
       setTimeout(() => setSuccessMsg(''), 4000);
-    });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleDisconnect = async () => {
     try {
       setSubmitting(true);
-      clearActivePlatform();
-      setSuccessMsg(`Successfully disconnected your ${displayName} account.`);
+      await disconnectPlatform(platformId);
+      setSuccessMsg(`Successfully disconnected your ${displayName} account. Other connected platforms remain active.`);
       setTimeout(() => setSuccessMsg(''), 4000);
     } catch (err) {
       console.error(err);

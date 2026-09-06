@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLegacyActive } from '../lib/platformAdapter';
 import { useActivePlatform } from '../context/ActivePlatformContext';
@@ -28,7 +28,21 @@ const formatCompact = (value) => {
 export default function Audience() {
   const navigate = useNavigate();
   const { audience, activeChannel, hasActiveChannel, loading: contextLoading, platformMeta } = useLegacyActive();
-  const { activePlatform } = useActivePlatform();
+  const { activePlatform, platformAccountId, activeAccount, hasActivePlatform, saveModuleData } = useActivePlatform();
+
+  // ─── Save audience module analytics to MongoDB after loading data ──────────────
+  useEffect(() => {
+    if (hasActivePlatform && activeAccount && platformAccountId) {
+      saveModuleData('audience', {
+        platform: activePlatform,
+        account_name: activeAccount.name,
+        followers: activeAccount.followersCount || 0,
+        country: activeAccount.country || 'Global',
+        audience_data: audience || null,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }, [hasActivePlatform, activeAccount, activePlatform, platformAccountId, audience, saveModuleData]);
 
   const [dateFilter, setDateFilter] = useState('30d');
   const [exportNotification, setExportNotification] = useState('');

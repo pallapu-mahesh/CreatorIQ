@@ -14,7 +14,25 @@ import {
 
 export default function ContentAnalytics() {
   const navigate = useNavigate();
-  const { activeAccount, contentItems: platformContentItems, activeAudience, hasActivePlatform, loading: contextLoading, platformMeta, activePlatform } = useActivePlatform();
+  const { activeAccount, contentItems: platformContentItems, activeAudience, hasActivePlatform, loading: contextLoading, platformMeta, activePlatform, platformAccountId, saveModuleData } = useActivePlatform();
+
+  // ─── Save content module analytics to MongoDB after loading data ──────────────
+  useEffect(() => {
+    if (hasActivePlatform && activeAccount && platformAccountId && platformContentItems) {
+      saveModuleData('content', {
+        platform: activePlatform,
+        account_name: activeAccount.name,
+        total_items: platformContentItems.length,
+        items: platformContentItems.map(c => ({
+          id: c.id,
+          title: c.title,
+          type: c.type,
+          metrics: c.metrics,
+        })),
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }, [hasActivePlatform, activeAccount, activePlatform, platformAccountId, platformContentItems, saveModuleData]);
 
   // Aliases for backward compatibility with the rest of this component
   const activeChannel = activeAccount;

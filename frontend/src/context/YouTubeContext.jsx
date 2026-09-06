@@ -6,31 +6,38 @@ import { toLegacyChannel, toLegacyVideos } from '../lib/platformAdapter';
 const YouTubeContext = createContext(null);
 
 export function YouTubeProvider({ children }) {
-  const { activePlatform, platformMeta, switchPlatform, clearActivePlatform } = useActivePlatform();
+  const {
+    connectedPlatforms,
+    connectedAccounts,
+    connectedContent,
+    platformMeta,
+    connectPlatform,
+    disconnectPlatform,
+  } = useActivePlatform();
 
   const value = useMemo(() => {
-    const isActive = activePlatform === 'youtube';
-    // Map the fixed demo account/content into the legacy "channel + videos"
-    // shape that YouTubeIntegration and other legacy pages consume.
-    const channel = isActive ? toLegacyChannel(demoData.youtube.account, platformMeta) : null;
-    const videosList = isActive ? toLegacyVideos(demoData.youtube.content) : [];
+    const isConnected = (connectedPlatforms || []).includes('youtube');
+    const rawAccount = connectedAccounts?.youtube || (isConnected ? demoData.youtube.account : null);
+    const rawContent = connectedContent?.youtube || (isConnected ? demoData.youtube.content : []);
+    const channel = isConnected ? toLegacyChannel(rawAccount, platformMeta) : null;
+    const videosList = isConnected ? toLegacyVideos(rawContent) : [];
 
     return {
       activeChannel: channel,
       videos: videosList,
-      activeSource: isActive ? 'demo' : null,
+      activeSource: isConnected ? 'connected' : null,
       connectedAccount: channel,
       noChannelFound: false,
       loading: false,
       error: null,
-      hasActiveChannel: isActive,
-      activatePublicChannel: async () => { switchPlatform('youtube'); },
-      activateOAuthChannel: async () => { switchPlatform('youtube'); },
-      disconnectActiveChannel: async () => { clearActivePlatform(); },
+      hasActiveChannel: isConnected,
+      activatePublicChannel: async () => { await connectPlatform('youtube'); },
+      activateOAuthChannel: async () => { await connectPlatform('youtube'); },
+      disconnectActiveChannel: async () => { await disconnectPlatform('youtube'); },
       refreshActiveChannel: async () => {},
       reloadConnectedStatus: async () => {},
     };
-  }, [activePlatform, platformMeta, switchPlatform, clearActivePlatform]);
+  }, [connectedPlatforms, connectedAccounts, connectedContent, platformMeta, connectPlatform, disconnectPlatform]);
 
   return <YouTubeContext.Provider value={value}>{children}</YouTubeContext.Provider>;
 }

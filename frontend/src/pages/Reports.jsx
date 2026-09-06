@@ -73,10 +73,26 @@ const fmtDateTime = (iso) => {
   });
 };
 
+import { useActivePlatform } from '../context/ActivePlatformContext';
+
 export default function Reports() {
   const {
     activeChannel, videos, audience, hasActiveChannel, loading, activePlatform, platformMeta,
   } = useLegacyActive();
+  const { platformAccountId, activeAccount, hasActivePlatform, saveModuleData } = useActivePlatform();
+
+  // ─── Save reports module analytics to MongoDB after loading data ──────────────
+  useEffect(() => {
+    if (hasActivePlatform && activeAccount && platformAccountId) {
+      saveModuleData('reports', {
+        platform: activePlatform,
+        account_name: activeAccount.name,
+        followers: activeAccount.followersCount || 0,
+        total_views: activeAccount.totalViews || 0,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }, [hasActivePlatform, activeAccount, activePlatform, platformAccountId, saveModuleData]);
   const { addNotification } = useNotifications();
   const { user } = useAuth();
 

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useActivePlatform } from '../context/ActivePlatformContext';
 import PlatformSelector from '../components/PlatformSelector';
@@ -34,7 +35,27 @@ export default function Dashboard() {
     loading,
     platformMeta,
     activePlatform,
+    platformAccountId,
+    saveModuleData,
   } = useActivePlatform();
+
+  // ─── Save dashboard module data to MongoDB when page loads / calculates data ───
+  useEffect(() => {
+    if (hasActivePlatform && activeAccount && platformAccountId) {
+      const followers = activeAccount.followersCount || 0;
+      const totalViews = activeAccount.totalViews || 0;
+      const contentCount = activeAccount.contentCount || 0;
+      saveModuleData('dashboard', {
+        platform: activePlatform,
+        account_name: activeAccount.name,
+        followers,
+        total_views: totalViews,
+        content_count: contentCount,
+        following: activeAccount.followingCount,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }, [hasActivePlatform, activeAccount, activePlatform, platformAccountId, saveModuleData]);
 
   if (loading) {
     return (

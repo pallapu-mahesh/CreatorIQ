@@ -5,29 +5,35 @@ import { demoData } from './demoData';
 const InstagramContext = createContext(null);
 
 export function InstagramProvider({ children }) {
-  const { activePlatform, switchPlatform, clearActivePlatform } = useActivePlatform();
+  const {
+    connectedPlatforms,
+    connectedAccounts,
+    connectedContent,
+    connectPlatform,
+    disconnectPlatform,
+  } = useActivePlatform();
 
   const value = useMemo(() => {
-    const isActive = activePlatform === 'instagram';
-    const profile = isActive ? demoData.instagram.account : null;
-    const mediaList = isActive ? demoData.instagram.content : [];
+    const isConnected = (connectedPlatforms || []).includes('instagram');
+    const profile = connectedAccounts?.instagram || (isConnected ? demoData.instagram.account : null);
+    const mediaList = connectedContent?.instagram || (isConnected ? demoData.instagram.content : []);
 
     return {
       activeProfile: profile,
       media: mediaList,
-      activeSource: isActive ? 'demo' : null,
+      activeSource: isConnected ? 'connected' : null,
       connectedAccount: profile,
       noAccountFound: false,
       loading: false,
       error: null,
-      hasActiveProfile: isActive,
-      activatePublicProfile: async () => { switchPlatform('instagram'); },
-      activateOAuthAccount: async () => { switchPlatform('instagram'); },
-      disconnectActiveProfile: async () => { clearActivePlatform(); },
+      hasActiveProfile: isConnected,
+      activatePublicProfile: async () => { await connectPlatform('instagram'); },
+      activateOAuthAccount: async () => { await connectPlatform('instagram'); },
+      disconnectActiveProfile: async () => { await disconnectPlatform('instagram'); },
       syncInstagramData: async () => { return profile; },
       reloadConnectedStatus: async () => {},
     };
-  }, [activePlatform, switchPlatform, clearActivePlatform]);
+  }, [connectedPlatforms, connectedAccounts, connectedContent, connectPlatform, disconnectPlatform]);
 
   return <InstagramContext.Provider value={value}>{children}</InstagramContext.Provider>;
 }

@@ -50,9 +50,25 @@ import {
   Cell
 } from 'recharts';
 
+import { useActivePlatform } from '../context/ActivePlatformContext';
+
 export default function GrowthTrends() {
   const navigate = useNavigate();
   const { activeChannel, videos, audience, hasActiveChannel, loading: contextLoading, activePlatform } = useLegacyActive();
+  const { platformAccountId, activeAccount, hasActivePlatform, saveModuleData } = useActivePlatform();
+
+  // ─── Save growth module analytics to MongoDB after loading data ──────────────
+  useEffect(() => {
+    if (hasActivePlatform && activeAccount && platformAccountId) {
+      saveModuleData('growth', {
+        platform: activePlatform,
+        account_name: activeAccount.name,
+        followers: activeAccount.followersCount || 0,
+        total_views: activeAccount.totalViews || 0,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }, [hasActivePlatform, activeAccount, activePlatform, platformAccountId, saveModuleData]);
 
   // Dark Mode State
   const [isDarkMode, setIsDarkMode] = useState(false);

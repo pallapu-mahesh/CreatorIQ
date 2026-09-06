@@ -50,9 +50,26 @@ import {
   Legend
 } from 'recharts';
 
+import { useActivePlatform } from '../context/ActivePlatformContext';
+
 export default function Revenue() {
   const navigate = useNavigate();
   const { activeChannel, videos, hasActiveChannel, loading: contextLoading, activePlatform } = useLegacyActive();
+  const { platformAccountId, activeAccount, hasActivePlatform, saveModuleData } = useActivePlatform();
+
+  // ─── Save revenue module analytics to MongoDB after loading data ──────────────
+  useEffect(() => {
+    if (hasActivePlatform && activeAccount && platformAccountId) {
+      saveModuleData('revenue', {
+        platform: activePlatform,
+        account_name: activeAccount.name,
+        total_views: activeAccount.totalViews || 0,
+        followers: activeAccount.followersCount || 0,
+        cpm: activePlatform === 'youtube' ? 3.5 : 2.0,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }, [hasActivePlatform, activeAccount, activePlatform, platformAccountId, saveModuleData]);
 
   // Dark Mode State
   const [isDarkMode, setIsDarkMode] = useState(false);
