@@ -9,7 +9,7 @@ Instead of forcing creators and agencies to switch between separate platform das
 The system is designed around a **platform-independent analytics architecture**, allowing new social platforms to be integrated without rebuilding the analytics layer.
 
 ---
-
+ 
 ## 🚀 Why CreatorIQ?
 
 Creators manage data across multiple platforms, but each platform exposes different APIs, authentication mechanisms, metrics, and data structures.
